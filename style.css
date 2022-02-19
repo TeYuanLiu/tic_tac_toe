@@ -10,18 +10,59 @@
 }
 
 :root {
-  --cell-size: 100px;
+  --cell-size: 6rem;
   --mark-size: calc(var(--cell-size) * 0.9);
 }
 
-.board {
+.panel-container {
   width: 100vw;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.message {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  font-size: 3rem;
+}
+
+.message button {
+  font-size: 2rem;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  margin: 1rem 0 0;
+  cursor: pointer;
+}
+
+.message button:hover {
+  background-color: black;
+  color: white;
+  border-color: white;
+}
+
+.message.show {
+  display: flex;
+}
+
+.board {
   display: grid;
   justify-content: center;
   align-content: center;
-  justify-items: center;
-  align-items: center;
   grid-template-columns: repeat(3, auto);
 }
 
@@ -32,7 +73,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  /*position: relative;*/
   cursor: pointer;
 }
 
@@ -40,10 +80,6 @@
 .cell:nth-child(2),
 .cell:nth-child(3) {
   border-top: none;
-}
-
-.cell:nth-child(3n + 1) {
-  border-left: none;
 }
 
 .cell:nth-child(3n + 3) {
@@ -54,6 +90,10 @@
 .cell:nth-child(8),
 .cell:nth-child(7) {
   border-bottom: none;
+}
+
+.cell:nth-child(3n + 1) {
+  border-left: none;
 }
 
 .cell.x::before,
@@ -113,37 +153,4 @@
 .cell.x,
 .cell.o {
   cursor: not-allowed;
-}
-
-.winning-message {
-  display: none;
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.8);
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-size: 5rem;
-}
-
-.winning-message button {
-  font-size: 3rem;
-  background-color: white;
-  border: 1px solid black;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-}
-
-.winning-message button:hover {
-  background-color: black;
-  color: white;
-  border-color: white;
-}
-
-.winning-message.show {
-  display: flex;
 }

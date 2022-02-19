@@ -10,45 +10,177 @@ const WINNING_COMBINATION = [
   [0, 4, 8],
   [2, 4, 6],
 ];
+
+const welcomeMessage = document.getElementById("welcomeMessage");
+const easyModeButton = document.getElementById("easyModeButton");
+const hardModeButton = document.getElementById("hardModeButton");
+
+const orderMessage = document.getElementById("orderMessage");
+const goFirstButton = document.getElementById("goFirstButton");
+const goSecondButton = document.getElementById("goSecondButton");
+
 const board = document.getElementById("board");
-const cellElements = document.querySelectorAll("[data-cell]");
-const winningMessageElement = document.getElementById("winningMessage");
-const winningMessageTextElement = document.querySelector(
-  "[data-winning-message-text"
+const cells = document.querySelectorAll("[data-cell]");
+
+const outcomeMessage = document.getElementById("outcomeMessage");
+const outcomeMessageText = document.querySelector(
+  "[data-outcome-message-text]"
 );
 const restartButton = document.getElementById("restartButton");
-let oTurn = false;
 
-startGame();
+let easyMode = true;
+let goFirst = true;
+let xTurn = true;
 
-restartButton.addEventListener("click", startGame);
+easyModeButton.addEventListener("click", () => {
+  easyMode = true;
+  showOrderMessage();
+});
+
+hardModeButton.addEventListener("click", () => {
+  easyMode = false;
+  showOrderMessage();
+});
+
+function showOrderMessage() {
+  welcomeMessage.classList.remove("show");
+  orderMessage.classList.add("show");
+}
+
+goFirstButton.addEventListener("click", () => {
+  goFirst = true;
+  startGame();
+});
+
+goSecondButton.addEventListener("click", () => {
+  goFirst = false;
+  startGame();
+});
+
+restartButton.addEventListener("click", () => {
+  clearCells();
+  outcomeMessage.classList.remove("show");
+  welcomeMessage.classList.add("show");
+});
+
+cells.forEach((cell) => {
+  cell.addEventListener("click", handleClick);
+});
 
 function startGame() {
-  oTurn = false;
-  cellElements.forEach((cell) => {
+  xTurn = true;
+  clearCells();
+  if (goFirst) {
+    setBoardHoverClass();
+  } else {
+    queryBot();
+  }
+  orderMessage.classList.remove("show");
+}
+
+function clearCells() {
+  cells.forEach((cell) => {
     cell.classList.remove(X_CLASS);
     cell.classList.remove(O_CLASS);
-    cell.removeEventListener("click", handleClick);
-    cell.addEventListener("click", handleClick, { once: true });
   });
-  setBoardHoverClass();
-  winningMessageElement.classList.remove("show");
 }
 
 function setBoardHoverClass() {
-  board.classList.remove(X_CLASS);
-  board.classList.remove(O_CLASS);
-  if (oTurn) {
-    board.classList.add(O_CLASS);
-  } else {
+  unsetBoardHoverClass();
+  if (xTurn) {
     board.classList.add(X_CLASS);
+  } else {
+    board.classList.add(O_CLASS);
   }
 }
 
+function unsetBoardHoverClass() {
+  board.classList.remove(X_CLASS);
+  board.classList.remove(O_CLASS);
+}
+
 function handleClick(e) {
+  if ((goFirst && !xTurn) || (!goFirst && xTurn)) {
+    return;
+  }
   const cell = e.target;
-  const currentClass = oTurn ? O_CLASS : X_CLASS;
+  if (cell.classList.contains(X_CLASS) || cell.classList.contains(O_CLASS)) {
+    return;
+  }
+  const currentClass = xTurn ? X_CLASS : O_CLASS;
   placeMark(cell, currentClass);
+  if (checkWin(currentClass)) {
+    endGame(false);
+  } else if (isDraw()) {
+    endGame(true);
+  } else {
+    swapTurns();
+    queryBot();
+  }
+}
+
+function placeMark(cell, currentClass) {
+  cell.classList.add(currentClass);
+}
+
+function checkWin(currentClass) {
+  return WINNING_COMBINATION.some((combination) => {
+    return combination.every((index) => {
+      return cells[index].classList.contains(currentClass);
+    });
+  });
+}
+
+function isDraw() {
+  return [...cells].every((cell) => {
+    return cell.classList.contains(X_CLASS) || cell.classList.contains(O_CLASS);
+  });
+}
+
+function endGame(draw) {
+  if (draw) {
+    outcomeMessageText.innerHTML = "Draw";
+  } else {
+    outcomeMessageText.innerText = `You ${
+      (goFirst && xTurn) || (!goFirst && !xTurn) ? "Win" : "Lose"
+    }`;
+  }
+  outcomeMessage.classList.add("show");
+}
+
+function swapTurns() {
+  xTurn = !xTurn;
+}
+
+async function queryBot() {
+  unsetBoardHoverClass();
+  let query = easyMode ? "easy/" : "hard/";
+  for (let i = 0; i < cells.length; ++i) {
+    const cell = cells[i];
+    if (cell.classList.contains(X_CLASS)) {
+      query += xTurn ? "o" : "x";
+    } else if (cell.classList.contains(O_CLASS)) {
+      query += xTurn ? "x" : "o";
+    } else {
+      query += "-";
+    }
+  }
+  const url =
+    "https://alpha-tictactoe-zero-dual-mode.herokuapp.com/api/" + query;
+  try {
+    const response = await fetch(url);
+    const a = Number(await response.json());
+    const cell = cells[a];
+    if (xTurn) {
+      cell.classList.add(X_CLASS);
+    } else {
+      cell.classList.add(O_CLASS);
+    }
+  } catch (err) {
+    alert(err);
+  }
+
+  const currentClass = xTurn ? X_CLASS : O_CLASS;
   if (checkWin(currentClass)) {
     endGame(false);
   } else if (isDraw()) {
@@ -57,35 +189,4 @@ function handleClick(e) {
     swapTurns();
     setBoardHoverClass();
   }
-}
-
-function endGame(draw) {
-  if (draw) {
-    winningMessageTextElement.innerHTML = "Draw!";
-  } else {
-    winningMessageTextElement.innerText = `${oTurn ? "O's" : "X's"} Wins!`;
-  }
-  winningMessageElement.classList.add("show");
-}
-
-function placeMark(cell, currentClass) {
-  cell.classList.add(currentClass);
-}
-
-function swapTurns() {
-  oTurn = !oTurn;
-}
-
-function checkWin(currentClass) {
-  return WINNING_COMBINATION.some((combination) => {
-    return combination.every((index) => {
-      return cellElements[index].classList.contains(currentClass);
-    });
-  });
-}
-
-function isDraw() {
-  return [...cellElements].every((cell) => {
-    return cell.classList.contains(X_CLASS) || cell.classList.contains(O_CLASS);
-  });
 }

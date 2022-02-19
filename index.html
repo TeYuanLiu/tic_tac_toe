@@ -9,20 +9,32 @@
     <title>Document</title>
   </head>
   <body>
-    <div class="board" id="board">
-      <div class="cell" data-cell></div>
-      <div class="cell" data-cell></div>
-      <div class="cell" data-cell></div>
-      <div class="cell" data-cell></div>
-      <div class="cell" data-cell></div>
-      <div class="cell" data-cell></div>
-      <div class="cell" data-cell></div>
-      <div class="cell" data-cell></div>
-      <div class="cell" data-cell></div>
-    </div>
-    <div class="winning-message" id="winningMessage">
-      <div data-winning-message-text></div>
-      <button id="restartButton">Restart</button>
+    <div class="panel-container">
+      <div class="message show" id="welcomeMessage">
+        <p>Welcome to Play Tic-Tac-Toe</p>
+        <button id="easyModeButton">Easy Mode</button>
+        <button id="hardModeButton">Hard Mode</button>
+      </div>
+      <div class="message" id="orderMessage">
+        <p>Go First or Go Second</p>
+        <button id="goFirstButton">Go First</button>
+        <button id="goSecondButton">Go Second</button>
+      </div>
+      <div class="board" id="board">
+        <div class="cell" data-cell></div>
+        <div class="cell" data-cell></div>
+        <div class="cell" data-cell></div>
+        <div class="cell" data-cell></div>
+        <div class="cell" data-cell></div>
+        <div class="cell" data-cell></div>
+        <div class="cell" data-cell></div>
+        <div class="cell" data-cell></div>
+        <div class="cell" data-cell></div>
+      </div>
+      <div class="message" id="outcomeMessage">
+        <div data-outcome-message-text></div>
+        <button id="restartButton">Restart</button>
+      </div>
     </div>
   </body>
 </html>
