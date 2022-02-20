@@ -154,23 +154,35 @@ function swapTurns() {
 
 async function queryBot() {
   unsetBoardHoverClass();
-  let query = easyMode ? "easy/" : "hard/";
+  let boardString = "";
   for (let i = 0; i < cells.length; ++i) {
     const cell = cells[i];
     if (cell.classList.contains(X_CLASS)) {
-      query += xTurn ? "o" : "x";
+      boardString += "x";
     } else if (cell.classList.contains(O_CLASS)) {
-      query += xTurn ? "x" : "o";
+      boardString += "o";
     } else {
-      query += "-";
+      boardString += "-";
     }
   }
-  const url =
-    "https://alpha-tictactoe-zero-dual-mode.herokuapp.com/api/" + query;
+  const url = "https://alpha-tictactoe-zero-dual-mode.herokuapp.com/api";
+  const request = {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    body: JSON.stringify({
+      botIsO: goFirst.toString(),
+      easyMode: easyMode.toString(),
+      boardString: boardString,
+    }),
+  };
+
   try {
-    const response = await fetch(url);
-    const a = Number(await response.json());
-    const cell = cells[a];
+    const response = await fetch(url, request);
+    const text = await response.text();
+    const action = Number(text);
+    const cell = cells[action];
     if (xTurn) {
       cell.classList.add(X_CLASS);
     } else {
